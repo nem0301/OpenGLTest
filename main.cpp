@@ -92,6 +92,10 @@ int main(void)
 
 	glm::mat4 Model = glm::mat4(1.0f);
 	glm::mat4 MVP = Projection * View * Model;
+	
+	//scaling code
+	glm::mat4 myScalingMatrix = glm::scale(MVP, glm::vec3(10, 20, 1));
+	MVP = myScalingMatrix * MVP;
 
 	// ---------------------------Make Object---------------------------------
 	static const GLfloat g_vertex_buffer_data[] = {
