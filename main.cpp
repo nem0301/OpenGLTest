@@ -79,7 +79,7 @@ int main(void)
 
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
 
-	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), 4.0f/3.0f, 0.1f, 100.0f);
+	glm::mat4 Projection = glm::perspective(glm::radians(30.0f), 4.0f/3.0f, 0.1f, 100.0f);
 
 	glm::mat4 View = glm::lookAt(
 		glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
