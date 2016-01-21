@@ -35,7 +35,9 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
-	window = glfwCreateWindow(1024, 768, "Tutorial 01", NULL, NULL);
+	int width = 1024;
+	int height = 768;
+	window = glfwCreateWindow(width, height, "Tutorial 01", NULL, NULL);
 	if (window == NULL) {
 		fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
 		getchar();
@@ -78,8 +80,9 @@ int main(void)
 	// ---------------------------MVP----------------------------------
 
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");
-
-	glm::mat4 Projection = glm::perspective(glm::radians(30.0f), 4.0f/3.0f, 0.1f, 100.0f);
+	
+	//glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float)width/(float)height, 0.1f, 100.0f);
+	glm::mat4 Projection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 100.0f);
 
 	glm::mat4 View = glm::lookAt(
 		glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
@@ -116,7 +119,7 @@ int main(void)
 		//draw object
 		glEnableVertexAttribArray(0);					//before 
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);	//insert data in vertexbuffer to GL_ARRAY_BUFFER
-		glVertexAttribPointer(							
+		glVertexAttribPointer(							//
 			0,
 			3,
 			GL_FLOAT,
