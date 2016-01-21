@@ -14,7 +14,9 @@ GLFWwindow* window;
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
 using namespace glm;
+using namespace std;
 
 #include <common/shader.hpp>
 
@@ -184,6 +186,17 @@ int main(void)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
 
 	do {
+		for (int v = 0; v < 12 * 3; v++) {
+			g_color_buffer_data[3 * v + 0] = ((float)rand() / (float)(RAND_MAX)) * 1.0f;
+			g_color_buffer_data[3 * v + 1] = ((float)rand() / (float)(RAND_MAX)) * 1.0f;
+			g_color_buffer_data[3 * v + 2] = ((float)rand() / (float)(RAND_MAX)) * 1.0f;
+		}
+
+		GLuint colorbuffer;
+		glGenBuffers(1, &colorbuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
+
 		// Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -254,7 +267,6 @@ int main(void)
 		// Swap buffers
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
 	} // Check if the ESC key was pressed or the window was closed
 	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 		glfwWindowShouldClose(window) == 0);
