@@ -19,6 +19,7 @@ using namespace glm;
 using namespace std;
 
 #include <common/shader.hpp>
+#include <common/texture.hpp>
 
 int main(void)
 {
@@ -85,156 +86,126 @@ int main(void)
 	//glm::mat4 Projection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 100.0f);
 
 	glm::mat4 View = glm::lookAt(
-		glm::vec3(0, 0, 15), // Camera is at (4,3,3), in World Space
+		glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
 		glm::vec3(0, 0, 0), // and looks at the origin
 		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
 		);
 
 	glm::mat4 Model = glm::mat4(1.0f);
-	glm::mat4 MVP = Projection * View * Model;
-	glm::mat4 MVP2 = Projection * View * Model;
+	glm::mat4 MVP = Projection * View * Model;	
 
-
-	glm::mat4 myTransMatrix = glm::translate(MVP, vec3(-5, 0, 0));
-	MVP = myTransMatrix;
-
-	myTransMatrix = glm::translate(MVP2, vec3(5, 0, 0));
-	MVP2 = myTransMatrix;
-	
 	//scaling code
 	/*glm::mat4 myScalingMatrix = glm::scale(MVP, glm::vec3(10, 20, 1));
 	MVP = myScalingMatrix * MVP;*/
+	
+	GLuint Texture = loadDDS("resources/uvtemplate.DDS");
+
+	GLuint TextureID = glGetUniformLocation(programID, "myTextureSampler");
 
 	// ---------------------------Make Object---------------------------------
-	static const GLfloat g_vertex_buffer_data[] = {
+	static const GLfloat g_vertex_buffer_data[] = { 
 		-1.0f,-1.0f,-1.0f,
 		-1.0f,-1.0f, 1.0f,
 		-1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f,-1.0f,
+		 1.0f, 1.0f,-1.0f,
 		-1.0f,-1.0f,-1.0f,
 		-1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f, 1.0f,
+		 1.0f,-1.0f, 1.0f,
 		-1.0f,-1.0f,-1.0f,
-		1.0f,-1.0f,-1.0f,
-		1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f,-1.0f,
+		 1.0f,-1.0f,-1.0f,
+		 1.0f, 1.0f,-1.0f,
+		 1.0f,-1.0f,-1.0f,
 		-1.0f,-1.0f,-1.0f,
 		-1.0f,-1.0f,-1.0f,
 		-1.0f, 1.0f, 1.0f,
 		-1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f, 1.0f,
+		 1.0f,-1.0f, 1.0f,
 		-1.0f,-1.0f, 1.0f,
 		-1.0f,-1.0f,-1.0f,
 		-1.0f, 1.0f, 1.0f,
 		-1.0f,-1.0f, 1.0f,
-		1.0f,-1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f,-1.0f,-1.0f,
-		1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f,-1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f,-1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f,-1.0f,
+		 1.0f,-1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f,
+		 1.0f,-1.0f,-1.0f,
+		 1.0f, 1.0f,-1.0f,
+		 1.0f,-1.0f,-1.0f,
+		 1.0f, 1.0f, 1.0f,
+		 1.0f,-1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f,-1.0f,
 		-1.0f, 1.0f,-1.0f,
-		1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f,
 		-1.0f, 1.0f,-1.0f,
 		-1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f,
 		-1.0f, 1.0f, 1.0f,
-		1.0f,-1.0f, 1.0f
+		 1.0f,-1.0f, 1.0f
 	};
 
-	static GLfloat g_color_buffer_data[12*3*3];
-
-	for (int v = 0; v < 12 * 3; v++) {
-		g_color_buffer_data[3 * v + 0] = 1;
-		g_color_buffer_data[3 * v + 1] = 0;
-		g_color_buffer_data[3 * v + 2] = 1;
-	}
-
-	static const GLfloat g_vertex_buffer_data_tri[] = {
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		0.0f,  1.0f, 0.0f,
+	static const GLfloat g_uv_buffer_data[] = { 
+		0.000059f, 1.0f-0.000004f, 
+		0.000103f, 1.0f-0.336048f, 
+		0.335973f, 1.0f-0.335903f, 
+		1.000023f, 1.0f-0.000013f, 
+		0.667979f, 1.0f-0.335851f, 
+		0.999958f, 1.0f-0.336064f, 
+		0.667979f, 1.0f-0.335851f, 
+		0.336024f, 1.0f-0.671877f, 
+		0.667969f, 1.0f-0.671889f, 
+		1.000023f, 1.0f-0.000013f, 
+		0.668104f, 1.0f-0.000013f, 
+		0.667979f, 1.0f-0.335851f, 
+		0.000059f, 1.0f-0.000004f, 
+		0.335973f, 1.0f-0.335903f, 
+		0.336098f, 1.0f-0.000071f, 
+		0.667979f, 1.0f-0.335851f, 
+		0.335973f, 1.0f-0.335903f, 
+		0.336024f, 1.0f-0.671877f, 
+		1.000004f, 1.0f-0.671847f, 
+		0.999958f, 1.0f-0.336064f, 
+		0.667979f, 1.0f-0.335851f, 
+		0.668104f, 1.0f-0.000013f, 
+		0.335973f, 1.0f-0.335903f, 
+		0.667979f, 1.0f-0.335851f, 
+		0.335973f, 1.0f-0.335903f, 
+		0.668104f, 1.0f-0.000013f, 
+		0.336098f, 1.0f-0.000071f, 
+		0.000103f, 1.0f-0.336048f, 
+		0.000004f, 1.0f-0.671870f, 
+		0.336024f, 1.0f-0.671877f, 
+		0.000103f, 1.0f-0.336048f, 
+		0.336024f, 1.0f-0.671877f, 
+		0.335973f, 1.0f-0.335903f, 
+		0.667969f, 1.0f-0.671889f, 
+		1.000004f, 1.0f-0.671847f, 
+		0.667979f, 1.0f-0.335851f
 	};
 
-	static const GLfloat g_color_buffer_data_tri[] = {
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 0.0f, 0.0f
-	};
-
-	GLuint vertexbuffer_tri;
-	glGenBuffers(1, &vertexbuffer_tri);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_tri);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data_tri), g_vertex_buffer_data_tri, GL_STATIC_DRAW);
-
-	GLuint colorbuffer_tri;
-	glGenBuffers(1, &colorbuffer_tri);
-	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer_tri);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data_tri), g_color_buffer_data_tri, GL_STATIC_DRAW);
-	
 	GLuint vertexbuffer;	
 	glGenBuffers(1, &vertexbuffer);	
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);	
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);	
 
-	GLuint colorbuffer;
-	glGenBuffers(1, &colorbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
+	GLuint uvbuffer;
+	glGenBuffers(1, &uvbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
 
-	do {
-		for (int v = 0; v < 12 * 3; v++) {
-			g_color_buffer_data[3 * v + 0] = ((float)rand() / (float)(RAND_MAX)) * 1.0f;
-			g_color_buffer_data[3 * v + 1] = ((float)rand() / (float)(RAND_MAX)) * 1.0f;
-			g_color_buffer_data[3 * v + 2] = ((float)rand() / (float)(RAND_MAX)) * 1.0f;
-		}
-
-		GLuint colorbuffer;
-		glGenBuffers(1, &colorbuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
+	do {	
 
 		// Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//
+
 		glUseProgram(programID);
-
-		//apply window with MVP
-		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP2[0][0]);		
-		
-		//draw object
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer_tri);
-		glVertexAttribPointer(
-			0,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			0,
-			(void*)0
-			);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, colorbuffer_tri);
-		glVertexAttribPointer(
-			1,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			0,
-			(void*)0
-			);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
 
 		
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, Texture);
+
+		glUniform1i(TextureID, 0);
 
 		glEnableVertexAttribArray(0);					
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);	
@@ -246,14 +217,14 @@ int main(void)
 			0,
 			(void*)0
 			);
-		glDrawArrays(GL_TRIANGLES, 0, 12*3);		
+		//glDrawArrays(GL_TRIANGLES, 0, 12*3);		
 
 		//paint object
 		glEnableVertexAttribArray(1);					
-		glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);	
+		glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
 		glVertexAttribPointer(							
 			1,
-			3,
+			2,
 			GL_FLOAT,
 			GL_FALSE,
 			0,
