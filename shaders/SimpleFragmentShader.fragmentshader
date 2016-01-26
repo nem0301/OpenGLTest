@@ -6,7 +6,7 @@ in vec3 Normal_cameraspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
 
-out vec3 color;
+out vec4 color;
 
 uniform sampler2D myTextureSampler;
 uniform mat4 MV;
@@ -33,9 +33,10 @@ void main()
 	
 	float cosAlpha = clamp( dot( E,R ), 0,1 );
  
-	color = 		
+	color.rgb = 		
 		MaterialAmbientColor +		
 		MaterialDiffuseColor * LightColor * LightPower * cosTheta / (distance*distance) +		
 		MaterialSpecularColor * LightColor * LightPower * pow(cosAlpha,5) / (distance*distance);
-	//color = texture(myTextureSampler, UV).rgb;
+
+	color.a = 0.3;
 }

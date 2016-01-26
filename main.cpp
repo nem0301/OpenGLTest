@@ -132,6 +132,9 @@ int main(void)
 	glUseProgram(programID);
 	GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	double lastTime = glfwGetTime();
 	int nbFrames = 0;
 
