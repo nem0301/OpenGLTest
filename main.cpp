@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <vector>
 
 // Include GLEW
 #include <GL/glew.h>
@@ -21,6 +22,7 @@ using namespace std;
 #include <common/shader.hpp>
 #include <common/texture.hpp>
 #include <common/controls.hpp>
+#include <common/objloader.hpp>
 
 int main(void)
 {
@@ -87,6 +89,8 @@ int main(void)
 	// ---------------------------MVP----------------------------------
 
 	GLuint MatrixID = glGetUniformLocation(programID, "MVP");	
+	GLuint ViewMatrixID = glGetUniformLocation(programID, "V");
+	GLuint ModelMatrixID = glGetUniformLocation(programID, "M");
 	
 	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float)width/(float)height, 0.1f, 100.0f);
 	//glm::mat4 Projection = glm::ortho(-5.0f, 5.0f, -5.0f, 5.0f, 0.1f, 100.0f);
@@ -100,98 +104,33 @@ int main(void)
 	glm::mat4 Model = glm::mat4(1.0f);
 	glm::mat4 MVP = Projection * View * Model;	
 	
-	GLuint Texture = loadDDS("resources/uvtemplate.DDS");
+	GLuint Texture = loadDDS("resources/uvmap.DDS");
 
 	GLuint TextureID = glGetUniformLocation(programID, "myTextureSampler");
 
-	// ---------------------------Make Object---------------------------------
-	static const GLfloat g_vertex_buffer_data[] = { 
-		-1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		 1.0f, 1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f,-1.0f,
-		 1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f,-1.0f,
-		 1.0f,-1.0f,-1.0f,
-		 1.0f, 1.0f,-1.0f,
-		 1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f,-1.0f,
-		 1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f,-1.0f, 1.0f,
-		 1.0f,-1.0f, 1.0f,
-		 1.0f, 1.0f, 1.0f,
-		 1.0f,-1.0f,-1.0f,
-		 1.0f, 1.0f,-1.0f,
-		 1.0f,-1.0f,-1.0f,
-		 1.0f, 1.0f, 1.0f,
-		 1.0f,-1.0f, 1.0f,
-		 1.0f, 1.0f, 1.0f,
-		 1.0f, 1.0f,-1.0f,
-		-1.0f, 1.0f,-1.0f,
-		 1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		 1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		 1.0f,-1.0f, 1.0f
-	};
-
-	static const GLfloat g_uv_buffer_data[] = { 
-		0.000059f, 0.000004f, 
-		0.000103f, 0.336048f, 
-		0.335973f, 0.335903f, 
-		1.000023f, 0.000013f, 
-		0.667979f, 0.335851f, 
-		0.999958f, 0.336064f, 
-		0.667979f, 0.335851f, 
-		0.336024f, 0.671877f, 
-		0.667969f, 0.671889f, 
-		1.000023f, 0.000013f, 
-		0.668104f, 0.000013f, 
-		0.667979f, 0.335851f, 
-		0.000059f, 0.000004f, 
-		0.335973f, 0.335903f, 
-		0.336098f, 0.000071f, 
-		0.667979f, 0.335851f, 
-		0.335973f, 0.335903f, 
-		0.336024f, 0.671877f, 
-		1.000004f, 0.671847f, 
-		0.999958f, 0.336064f, 
-		0.667979f, 0.335851f, 
-		0.668104f, 0.000013f, 
-		0.335973f, 0.335903f, 
-		0.667979f, 0.335851f, 
-		0.335973f, 0.335903f, 
-		0.668104f, 0.000013f, 
-		0.336098f, 0.000071f, 
-		0.000103f, 0.336048f, 
-		0.000004f, 0.671870f, 
-		0.336024f, 0.671877f, 
-		0.000103f, 0.336048f, 
-		0.336024f, 0.671877f, 
-		0.335973f, 0.335903f, 
-		0.667969f, 0.671889f, 
-		1.000004f, 0.671847f, 
-		0.667979f, 0.335851f
-	};
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec2> uvs;
+	std::vector<glm::vec3> normals; // Won't be used at the moment.
+	bool res = loadOBJ("resources/cube.obj", vertices, uvs, normals);
+	
 
 	GLuint vertexbuffer;	
 	glGenBuffers(1, &vertexbuffer);	
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);	
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);	
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 
 	GLuint uvbuffer;
 	glGenBuffers(1, &uvbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, uvbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_uv_buffer_data), g_uv_buffer_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+
+	GLuint normalbuffer;
+	glGenBuffers(1, &normalbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+
+	glUseProgram(programID);
+	GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
 
 	do {	
 
@@ -208,11 +147,16 @@ int main(void)
 		glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 		
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+		glUniformMatrix4fv(ModelMatrixID, 1, GL_FALSE, &ModelMatrix[0][0]);
+		glUniformMatrix4fv(ViewMatrixID, 1, GL_FALSE, &ViewMatrix[0][0]);
+
+		glm::vec3 lightPos = glm::vec3(4, 4, 4);
+		glUniform3f(LightID, lightPos.x, lightPos.y, lightPos.z);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, Texture);
 
-		glUniform1i(TextureID, 0);
+		glUniform1i(TextureID, 0);		
 
 		glEnableVertexAttribArray(0);					
 		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);	
@@ -239,8 +183,22 @@ int main(void)
 			);
 		glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
+		glEnableVertexAttribArray(2);
+		glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+		glVertexAttribPointer(
+			2,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			0,
+			(void*)0
+			);
+
+		glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
 
 		// Swap buffers
 		glfwSwapBuffers(window);
@@ -248,6 +206,13 @@ int main(void)
 	} // Check if the ESC key was pressed or the window was closed
 	while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 		glfwWindowShouldClose(window) == 0);
+
+	glDeleteBuffers(1, &vertexbuffer);
+	glDeleteBuffers(1, &uvbuffer);
+	glDeleteBuffers(1, &normalbuffer);
+	glDeleteProgram(programID);
+	glDeleteTextures(1, &Texture);
+	glDeleteVertexArrays(1, &VertexArrayID);
 
 	// Close OpenGL window and terminate GLFW
 	glfwTerminate();
