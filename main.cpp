@@ -132,7 +132,19 @@ int main(void)
 	glUseProgram(programID);
 	GLuint LightID = glGetUniformLocation(programID, "LightPosition_worldspace");
 
-	do {	
+	double lastTime = glfwGetTime();
+	int nbFrames = 0;
+
+	do {
+		double currentTime = glfwGetTime();
+		nbFrames++;
+		if (currentTime - lastTime >= 1.0) { // If last prinf() was more than 1 sec ago
+			// printf and reset timer
+			//printf("%f ms/frame\n", 1000.0 / double(nbFrames));
+			printf("FPS : %d\n", nbFrames);
+			nbFrames = 0;
+			lastTime += 1.0;		
+		}
 
 		// Clear the screen. It's not mentioned before Tutorial 02, but it can cause flickering, so it's there nonetheless.
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
