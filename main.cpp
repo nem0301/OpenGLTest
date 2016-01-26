@@ -20,6 +20,7 @@ using namespace std;
 
 #include <common/shader.hpp>
 #include <common/texture.hpp>
+#include <common/controls.hpp>
 
 int main(void)
 {
@@ -64,6 +65,11 @@ int main(void)
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	
+	glfwPollEvents();
+	glfwSetCursorPos(window, width / 2, height / 2);
+
 	// Dark blue background
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 
@@ -93,10 +99,6 @@ int main(void)
 
 	glm::mat4 Model = glm::mat4(1.0f);
 	glm::mat4 MVP = Projection * View * Model;	
-
-	//scaling code
-	/*glm::mat4 myScalingMatrix = glm::scale(MVP, glm::vec3(10, 20, 1));
-	MVP = myScalingMatrix * MVP;*/
 	
 	GLuint Texture = loadDDS("resources/uvtemplate.DDS");
 
@@ -199,6 +201,11 @@ int main(void)
 
 		glUseProgram(programID);
 
+		computeMatricesFromInputs();
+		glm::mat4 ProjectionMatrix = getProjectionMatrix();
+		glm::mat4 ViewMatrix = getViewMatrix();
+		glm::mat4 ModelMatrix = glm::mat4(1.0);
+		glm::mat4 MVP = ProjectionMatrix * ViewMatrix * ModelMatrix;
 		
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
 
