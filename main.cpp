@@ -23,6 +23,7 @@ using namespace std;
 #include <common/texture.hpp>
 #include <common/controls.hpp>
 #include <common/objloader.hpp>
+#include <common/text2D.hpp>
 
 int main(void)
 {
@@ -135,16 +136,20 @@ int main(void)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	initText2D("resources/Holstein.DDS");
+
 	double lastTime = glfwGetTime();
 	int nbFrames = 0;
+	char buffer[256];
 
 	do {
 		double currentTime = glfwGetTime();
 		nbFrames++;
 		if (currentTime - lastTime >= 1.0) { // If last prinf() was more than 1 sec ago
 			// printf and reset timer
-			//printf("%f ms/frame\n", 1000.0 / double(nbFrames));
-			printf("FPS : %d\n", nbFrames);
+			//printf("%f ms/frame\n", 1000.0 / double(nbFrames));			
+			sprintf(buffer, "FPS : %d", nbFrames);			
+
 			nbFrames = 0;
 			lastTime += 1.0;		
 		}
@@ -214,6 +219,8 @@ int main(void)
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
+
+		printText2D(buffer, 10, 500, 60);		
 
 		// Swap buffers
 		glfwSwapBuffers(window);
